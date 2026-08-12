@@ -2,11 +2,17 @@
 #MISE description="Build container image using pack CLI and push to registry."
 set -eo pipefail
 
+# ==========================================
+# Validate Environment
+# ==========================================
 : "${REGISTRY_HOST:?missing variable}"
 : "${REGISTRY_OWNER:?missing variable}"
 : "${IMAGE_NAME:?missing variable}"
 : "${IMAGE_TAG:=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")}"
 
+# ==========================================
+# Configure Image Tags & Flags
+# ==========================================
 # Enforce lowercase for OCI compliance
 REGISTRY_OWNER=$(echo "${REGISTRY_OWNER}" | tr '[:upper:]' '[:lower:]')
 IMAGE_NAME=$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')
@@ -27,7 +33,10 @@ if [[ "${CI:-false}" == "true" ]]; then
     BUILD_FLAGS+=( "--network" "host" "--publish" )
 fi
 
-gum spin --spinner minidot --title "[📦] Building container with buildpacks..." -- \
+# ==========================================
+# Build Container
+# ==========================================
+gum spin --spinner monkey --title "[🐳] Building container with buildpacks..." -- \
     pack build "${PRIMARY_IMAGE}" \
         "${TAG_ARGS[@]}" \
         "${BUILD_FLAGS[@]}" \

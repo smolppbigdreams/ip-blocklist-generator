@@ -35,6 +35,7 @@ gum spin --show-output --spinner minidot --title "[📦] Building container with
         "${EXTRA_TAG_ARGS[@]}" \
         --builder paketobuildpacks/builder:jammy-base \
         --buildpack docker.io/paketocommunity/rust \
+        --pull-policy if-not-present \
         ${PUBLISH_FLAG}
 
 gum log --level info "Image published: ${PRIMARY_IMAGE} ${EXTRA_TAG_ARGS[*]}"

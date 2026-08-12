@@ -30,9 +30,16 @@ if [[ "${CI:-false}" == "true" ]] || [[ "${PUBLISH_LOCAL:-false}" == "true" ]]; 
     PUBLISH_FLAG="--publish"
 fi
 
+# Forward BP_GITHUB_TOKEN only if it is defined (e.g., in CI)
+ENV_ARGS=()
+if [[ -n "${BP_GITHUB_TOKEN:-}" ]]; then
+    ENV_ARGS+=( "--env" "BP_GITHUB_TOKEN" )
+fi
+
 gum spin --show-output --spinner minidot --title "[📦] Building container with buildpacks..." -- \
     pack build "${PRIMARY_IMAGE}" \
         "${EXTRA_TAG_ARGS[@]}" \
+        "${ENV_ARGS[@]}" \
         --builder paketobuildpacks/builder-jammy-base \
         --buildpack docker.io/paketocommunity/rust \
         ${PUBLISH_FLAG}

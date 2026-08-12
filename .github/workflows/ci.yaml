@@ -52,5 +52,4 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           ADD_LATEST_TAG: ${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}
           CI: "true"
-          BP_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mise run build

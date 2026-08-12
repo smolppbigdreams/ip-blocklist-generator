@@ -24,22 +24,16 @@ if [[ "${ADD_LATEST_TAG:-false}" == "true" ]] || [[ "${CURRENT_BRANCH}" == "main
     EXTRA_TAG_ARGS+=( "--tag" "${BASE_REF}:latest" )
 fi
 
-# Only publish when in CI or explicitly requested locally
+# CI flags
 PUBLISH_FLAG=""
-if [[ "${CI:-false}" == "true" ]] || [[ "${PUBLISH_LOCAL:-false}" == "true" ]]; then
+if [[ "${CI:-false}" == "true" ]]; then
     PUBLISH_FLAG="--publish"
-fi
-
-# Forward BP_GITHUB_TOKEN only if it is defined (e.g., in CI)
-ENV_ARGS=()
-if [[ -n "${BP_GITHUB_TOKEN:-}" ]]; then
-    ENV_ARGS+=( "--env" "BP_GITHUB_TOKEN" )
 fi
 
 gum spin --show-output --spinner minidot --title "[📦] Building container with buildpacks..." -- \
     pack build "${PRIMARY_IMAGE}" \
         "${EXTRA_TAG_ARGS[@]}" \
-        "${ENV_ARGS[@]}" \
+        --network host \
         --builder paketobuildpacks/builder-jammy-base \
         --buildpack docker.io/paketocommunity/rust \
         ${PUBLISH_FLAG}

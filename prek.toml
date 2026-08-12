@@ -1,0 +1,35 @@
+# ==========================================
+# Built-in Hooks
+# ==========================================
+[[repos]]
+repo = "builtin"
+hooks = [
+    { id = "check-added-large-files", args = ["--maxkb=3000"] },
+    { id = "check-executables-have-shebangs" },
+    { id = "check-illegal-windows-names" },
+    { id = "check-json" },
+    { id = "check-json5" },
+    { id = "check-merge-conflict" },
+    { id = "check-shebang-scripts-are-executable" },
+    { id = "check-symlinks" },
+    { id = "check-toml" },
+    { id = "check-vcs-permalinks" },
+    { id = "check-xml" },
+    { id = "check-yaml", args = ["--allow-multiple-documents"] },
+    { id = "destroyed-symlinks" },
+    { id = "end-of-file-fixer" },
+    { id = "fix-byte-order-marker" },
+    { id = "pretty-format-json", args = ["--autofix", "--no-ensure-ascii"] },
+    { id = "require-pattern", name = "check-sops-encryption", args = ["-m", "^sops:"], files = '.*\.sops\.ya?ml$', exclude = '^\.sops\.yaml$' },
+    { id = "require-pattern", name = "check-sops-data-exists", args = ["-m", "ENC\\["], files = '.*\.sops\.ya?ml$', exclude = '^\.sops\.yaml$' },
+    { id = "trailing-whitespace" },
+]
+# ==========================================
+# TruffleHog Hooks
+# ==========================================
+[[repos]]
+repo = "https://github.com/trufflesecurity/trufflehog"
+rev = "v3.96.0"
+hooks = [
+  { id = "trufflehog" }
+]

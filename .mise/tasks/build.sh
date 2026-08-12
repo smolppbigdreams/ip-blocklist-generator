@@ -14,28 +14,24 @@ IMAGE_NAME=$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')
 BASE_REF="${REGISTRY_HOST}/${REGISTRY_OWNER}/${IMAGE_NAME}"
 PRIMARY_IMAGE="${BASE_REF}:${IMAGE_TAG}"
 
-# Always tag with commit SHA or dev
-TAG_ARGS=( "--tag" "${BASE_REF}:${IMAGE_TAG}" )
-
 # Determine if 'latest' tag is to be used
-EXTRA_TAG_ARGS=()
+TAG_ARGS=( "--tag" "${PRIMARY_IMAGE}" )
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 if [[ "${ADD_LATEST_TAG:-false}" == "true" ]] || [[ "${CURRENT_BRANCH}" == "main" ]]; then
-    EXTRA_TAG_ARGS+=( "--tag" "${BASE_REF}:latest" )
+    TAG_ARGS+=( "--tag" "${BASE_REF}:latest" )
 fi
 
-# CI flags
-PUBLISH_FLAG=""
+# CI-specific flags
+BUILD_FLAGS=()
 if [[ "${CI:-false}" == "true" ]]; then
-    PUBLISH_FLAG="--publish"
+    BUILD_FLAGS+=( "--network" "host" "--publish" )
 fi
 
-gum spin --show-output --spinner minidot --title "[📦] Building container with buildpacks..." -- \
+gum spin --spinner minidot --title "[📦] Building container with buildpacks..." -- \
     pack build "${PRIMARY_IMAGE}" \
-        "${EXTRA_TAG_ARGS[@]}" \
-        --network host \
+        "${TAG_ARGS[@]}" \
+        "${BUILD_FLAGS[@]}" \
         --builder paketobuildpacks/builder-jammy-base \
-        --buildpack docker.io/paketocommunity/rust \
-        ${PUBLISH_FLAG}
+        --buildpack docker.io/paketocommunity/rust
 
-gum log --level info "Image published: ${PRIMARY_IMAGE} ${EXTRA_TAG_ARGS[*]}"
+gum log --level info "Processed image: ${PRIMARY_IMAGE} ${TAG_ARGS[*]}"

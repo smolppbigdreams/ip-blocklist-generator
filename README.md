@@ -74,14 +74,14 @@ spec:
 
 1. **Fetch** Spamhaus DROP, FireHOL Level 1, and TOR exit node lists.
 2. **Parse** each line, skipping blank lines and comments. Treat bare IPv4 addresses as `/32`.
-3. **Fetch & parse** MISP warninglists (Apple, Cloudflare, Googlebot, OpenAI GPTBot).
+3. **Fetch + parse** MISP warninglists (Apple, Cloudflare, Googlebot, OpenAI GPTBot).
 4. **Subtract** allowlist ranges from blocked ranges. If a blocked network is fully covered by an allowed range, it’s removed. Partial overlaps are split so only the non‑allowlisted portions remain.
 5. **Aggregate** the remaining blocked ranges into the minimal non‑overlapping set.
 6. **Build** a `CiliumClusterwideNetworkPolicy` and print as pretty JSON to standard output.
 
 ## Generated Policy
 
-The output is a `cilium.io/v2` `CiliumClusterwideNetworkPolicy` named `block-bad-actors`. It uses `spec.ingressDeny` with `fromCIDRSet` to block inbound traffic from the aggregated (and allowlist‑filtered) CIDRs.
+The output is a `CiliumClusterwideNetworkPolicy` named `block-bad-actors` that blocks inbound traffic from the aggregated (and allowlist‑filtered) CIDRs.
 
 Example:
 

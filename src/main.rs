@@ -14,14 +14,9 @@ use std::{net::Ipv4Addr, time::Duration};
 
 /// Target URL for Spamhaus DROP (Don't Route Or Peer) blocklist.
 const SPAMHAUS_URL: &str = "https://www.spamhaus.org/drop/drop.txt";
-
 /// Target URL for FireHOL Level 1 aggregated netset blocklist.
 const FIREHOL_URL: &str =
     "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset";
-
-/// Target URL for official Tor Exit Nodes.
-const TOR_EXIT_URL: &str = "https://check.torproject.org/exit-addresses";
-
 /// Maximum fetch retries per URL.
 const MAX_RETRIES: usize = 3;
 

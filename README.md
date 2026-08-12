@@ -50,8 +50,8 @@ spec:
                 claimName: ip-blocklist-pvc
           containers:
             - name: generator
-              image: my-registry.internal/security/ip-blocklist-generator:latest
-              command: ["/bin/sh", "-c", "/app/ip-blocklist-generator > /buckets/security-manifests/ip-blocklist.json"]
+              image: ghcr.io/smolppbigdreams/ip-blocklist-generator:latest
+              command: ["/bin/sh", "-c", "/app/ip-blocklist-generator > /buckets/security/manifests/ip-blocklist.json"]
               volumeMounts:
                 - name: ip-blocklist-volume
                   mountPath: /buckets/security-manifests
@@ -64,11 +64,11 @@ spec:
                     - ALL
               resources:
                 requests:
-                  cpu: "50m"
+                  cpu: "100m"
                   memory: "64Mi"
                 limits:
-                  cpu: "100m"
-                  memory: "128Mi"
+                  cpu: "500m"
+                  memory: "512Mi"
 ```
 ## How It Works
 

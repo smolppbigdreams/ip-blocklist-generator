@@ -54,7 +54,7 @@ spec:
               command: ["/bin/sh", "-c", "/app/ip-blocklist-generator > /buckets/security/manifests/ip-blocklist.json"]
               volumeMounts:
                 - name: ip-blocklist-volume
-                  mountPath: /buckets/security-manifests
+                  mountPath: /buckets/security/manifests
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true

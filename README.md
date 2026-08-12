@@ -74,7 +74,7 @@ spec:
 
 1. **Fetch** Spamhaus DROP, FireHOL Level 1, and TOR exit node lists.
 2. **Parse** each line, skipping blank lines and comments. Treat bare IPv4 addresses as `/32`.
-3. **Fetch + parse** MISP warninglists (Apple, Cloudflare, Googlebot, OpenAI GPTBot).
+3. **Fetch + Parse** MISP warninglists (Apple, Cloudflare, Googlebot, OpenAI GPTBot).
 4. **Subtract** allowlist ranges from blocked ranges. If a blocked network is fully covered by an allowed range, it’s removed. Partial overlaps are split so only the non‑allowlisted portions remain.
 5. **Aggregate** the remaining blocked ranges into the minimal non‑overlapping set.
 6. **Build** a `CiliumClusterwideNetworkPolicy` and print as pretty JSON to standard output.

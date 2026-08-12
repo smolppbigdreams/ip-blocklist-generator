@@ -26,9 +26,6 @@ jq '.spec.ingressDeny[0].fromCIDRSet | length' block-bad-actors.json
 
 ```yaml
 ---
-# ==========================================
-# IP Blocklist Synchronization
-# ==========================================
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -82,25 +79,6 @@ spec:
 5. **Aggregate** the remaining blocked ranges into the minimal non‑overlapping set.
 6. **Build** a `CiliumClusterwideNetworkPolicy` and print as pretty JSON to standard output.
 
-## Data Sources
-
-### Blocklists
-
-| Source | URL | Purpose |
-|---|---|---|
-| Spamhaus DROP | `https://www.spamhaus.org/drop/drop.txt` | Don't Route Or Peer networks |
-| FireHOL Level 1 | `https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset` | Aggregated list of malicious/botnet IPs |
-| TOR Exit Nodes | `https://check.torproject.org/torbulkexitlist`
-
-### Allowlists
-
-| Name | URL |
-|---|---|
-| Apple | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/apple/list.json` |
-| Cloudflare | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/cloudflare/list.json` |
-| Googlebot | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/googlebot/list.json` |
-| OpenAI GPTBot | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/openai-gptbot/list.json` |
-
 ## Generated Policy
 
 The output is a `cilium.io/v2` `CiliumClusterwideNetworkPolicy` named `block-bad-actors`. It uses `spec.ingressDeny` with `fromCIDRSet` to block inbound traffic from the aggregated (and allowlist‑filtered) CIDRs.
@@ -138,6 +116,25 @@ Example:
 - MISP warninglists are static snapshots; they may become stale.
 - Source URLs are fixed at compile time – future versions may accept command‑line arguments.
 - TOR exit node list provides /32 entries. When many are consecutive, they are aggregated into larger blocks, which may deny traffic from IPs that no longer belong to TOR. Use with caution.
+
+## Data Sources
+
+### Blocklists
+
+| Source | URL | Purpose |
+|---|---|---|
+| Spamhaus DROP | `https://www.spamhaus.org/drop/drop.txt` | Don't Route Or Peer networks |
+| FireHOL Level 1 | `https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset` | Aggregated list of malicious/botnet IPs |
+| TOR Exit Nodes | `https://check.torproject.org/torbulkexitlist`
+
+### Allowlists
+
+| Name | URL |
+|---|---|
+| Apple | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/apple/list.json` |
+| Cloudflare | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/cloudflare/list.json` |
+| Googlebot | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/googlebot/list.json` |
+| OpenAI GPTBot | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/openai-gptbot/list.json` |
 
 ## Development
 

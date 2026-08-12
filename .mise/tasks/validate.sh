@@ -11,7 +11,7 @@ gum log --level info "[✅] Git changes staged."
 # ==========================================
 # Run Pre-Commit Hooks
 # ==========================================
-if gum spin --spinner meter --title " [🐙] Running Prek hooks..." -- prek run --all-files; then
+if gum spin --spinner meter --title "[🐙] Running Prek hooks..." -- prek run --all-files; then
     gum log --level info "[✅] Prek hooks passed successfully."
     exit 0
 fi
@@ -21,7 +21,7 @@ fi
 # ==========================================
 gum log --level warn "[❌] Prek found issues, attempting auto-fix. Re-running..."
 
-if output=$(gum spin --spinner pulse --title " [🐙] Retrying Prek hooks..." -- prek run --all-files 2>&1); then
+if output=$(gum spin --spinner pulse --title "[🐙] Retrying Prek hooks..." -- prek run --all-files 2>&1); then
     gum log --level info "[✅] Prek hooks passed successfully after retry."
     git add .
     gum log --level info "[✅] Git changes staged."

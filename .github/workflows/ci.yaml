@@ -1,0 +1,55 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+
+env:
+  REGISTRY_HOST: ghcr.io
+  REGISTRY_OWNER: ${{ github.repository_owner }}
+  IMAGE_NAME: ip-blocklist-generator
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: mise run install
+      - run: mise run validate
+      - run: mise run test
+
+  container:
+    needs: validate
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_HOST }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - env:
+          REGISTRY_HOST: ${{ env.REGISTRY_HOST }}
+          REGISTRY_OWNER: ${{ env.REGISTRY_OWNER }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+          ADD_LATEST_TAG: ${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}
+          CI: "true"
+        run: mise run build

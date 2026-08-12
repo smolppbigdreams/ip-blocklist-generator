@@ -10,7 +10,10 @@ rust        = "1.97.1"
 # Configuration
 # ==========================================
 [env]
-RUST_BACKTRACE = "1"
+RUST_BACKTRACE  = "1"
+REGISTRY_HOST   = "ghcr.io"
+REGISTRY_OWNER  = "smolppbigdreams"
+IMAGE_NAME      = "ip-blocklist-generator"
 
 [settings]
 task_output = "quiet"

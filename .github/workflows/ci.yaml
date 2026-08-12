@@ -24,24 +24,24 @@ jobs:
   # Job 1: Validation & Testing
   # ----------------------------------------
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v7
 
-      - name: Setup Mise tool manager
+      - name: Setup Mise
         uses: jdx/mise-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: mise run install
 
-      - name: Run manifest validation
+      - name: Run Validation
         run: mise run validate
 
-      - name: Run test suite
+      - name: Run Tests
         run: mise run test
 
   # ----------------------------------------
@@ -49,17 +49,17 @@ jobs:
   # ----------------------------------------
   container:
     needs: validate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
       packages: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v7
 
-      - name: Setup Mise tool manager
+      - name: Setup Mise
         uses: jdx/mise-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +71,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push container image
+      - name: Build & Push Container Image
         env:
           REGISTRY_HOST: ${{ env.REGISTRY_HOST }}
           REGISTRY_OWNER: ${{ env.REGISTRY_OWNER }}

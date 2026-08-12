@@ -2,11 +2,11 @@
 
 ## Summary
 
-This tool fetches public IPv4 blocklists, aggregates overlapping CIDRs, and prints a Cilium `CiliumClusterwideNetworkPolicy` manifest to stdout.
+Manually curating a blocklist of malicious IP networks is hard to keep fresh.
 
-## Why This Exists
+This tool exists to automate that process, with intented use in CD pipelines for Kubernetes clusters that use Cilium.
 
-Manually curating a blocklist of malicious IP networks is hard to keep fresh and even harder to review.
+It does so by fetching public IPv4 blocklists (Spamhaus, FireHOL, TOR), applying MISP warninglists as allowlists, and printing a `CiliumClusterwideNetworkPolicy` manifest to stdout.
 
 ## Requirements
 
@@ -18,32 +18,92 @@ Manually curating a blocklist of malicious IP networks is hard to keep fresh and
 
 The tool has no runtime arguments.
 
-It reads the two hardcoded source URLs, fetches them concurrently, and writes the generated policy to stdout.
+It reads the hardcoded source URLs, fetches them, applies the allowlists, and writes the generated policy to stdout.
 
 If either blocklist cannot be fetched after retries, the tool exits with an error and does not print a partial policy.
 
-```bash
-# Write the policy to a file and apply it
-cargo run --release > block-bad-actors.json
-kubectl apply -f block-bad-actors.json
+### Bash
 
-# See how many CIDRs are blocked
+```bash
+# See how many CIDRs are blocked.
+cargo run --release > block-bad-actors.json
 jq '.spec.ingressDeny[0].fromCIDRSet | length' block-bad-actors.json
+```
+
+### Kubernetes ChronJob
+
+```yaml
+---
+# ==========================================
+# IP Blocklist Synchronization
+# ==========================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ip-blocklist-synchronization
+  namespace: security-system
+spec:
+  schedule: "0 */4 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+            fsGroup: 10001
+            fsGroupChangePolicy: "OnRootMismatch"
+          volumes:
+            - name: ip-blocklist-volume
+              persistentVolumeClaim:
+                claimName: ip-blocklist-pvc
+          containers:
+            - name: generator
+              image: my-registry.internal/security/ip-blocklist-generator:latest
+              command: ["/bin/sh", "-c", "/app/ip-blocklist-generator > /buckets/security-manifests/ip-blocklist.json"]
+              volumeMounts:
+                - name: ip-blocklist-volume
+                  mountPath: /buckets/security-manifests
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
+              resources:
+                requests:
+                  cpu: "50m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "100m"
+                  memory: "128Mi"
 ```
 
 ## Data Sources
 
-Both URLs and the retry count are compile-time constants in `src/main.rs`.
+### Blocklists
 
 | Source | URL | Purpose |
 |---|---|---|
-| Spamhaus DROP | `https://www.spamhaus.org/drop/drop.txt` | Don't Route Or Peer (DROP) networks |
+| Spamhaus DROP | `https://www.spamhaus.org/drop/drop.txt` | Don't Route Or Peer networks |
 | FireHOL Level 1 | `https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset` | Aggregated list of malicious/botnet IPs |
+| TOR Exit Nodes | `https://check.torproject.org/torbulkexitlist`
 
+### Allowlists
+
+| Name | URL |
+|---|---|
+| Apple | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/apple/list.json` |
+| Cloudflare | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/cloudflare/list.json` |
+| Googlebot | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/googlebot/list.json` |
+| OpenAI GPTBot | `https://raw.githubusercontent.com/MISP/misp-warninglists/main/lists/openai-gptbot/list.json` |
 
 ## Generated Policy
 
-The output is a `cilium.io/v2` `CiliumClusterwideNetworkPolicy` named `block-bad-actors`. It uses `spec.ingressDeny` with `fromCIDRSet` to block inbound traffic from the listed CIDRs.
+The output is a `cilium.io/v2` `CiliumClusterwideNetworkPolicy` named `block-bad-actors`. It uses `spec.ingressDeny` with `fromCIDRSet` to block inbound traffic from the aggregated (and allowlist‑filtered) CIDRs.
 
 Example:
 
@@ -55,12 +115,15 @@ Example:
     "name": "block-bad-actors"
   },
   "spec": {
-    "description": "L3/L4 eBPF Blocklist using SPAMHAUS & FIREHOL",
+    "description": "L3/L4 eBPF Blocklist using SPAMHAUS, FIREHOL & TOR",
     "ingressDeny": [
       {
         "fromCIDRSet": [
-          { "cidr": "1.0.0.0/24" },
-          { "cidr": "2.2.2.0/24" }
+          { "cidr": "5.83.143.18/32" },
+          { "cidr": "23.129.64.201/32" },
+          { "cidr": "23.147.148.0/24" },
+          { "cidr": "192.88.128.0/22" },
+          { "cidr": "203.20.99.0/24" }
         ]
       }
     ]
@@ -70,10 +133,11 @@ Example:
 
 ## Limitations
 
-- IPv4 only. IPv6 entries are currently ignored.
+- IPv4 only. IPv6 entries in the blocklists are currently ignored.
 - The policy denies ingress only; no `egressDeny` rules are generated.
-- Source lists can contain false positives. Test against expected traffic before using this widely.
-- Source URLs are fixed at compile time.
+- MISP warninglists are static snapshots; they may become stale.
+- Source URLs are fixed at compile time – future versions may accept command‑line arguments.
+- TOR exit node list provides /32 entries. When many are consecutive, they are aggregated into larger blocks, which may deny traffic from IPs that no longer belong to TOR. Use with caution.
 
 ## Development
 
@@ -83,4 +147,4 @@ Run the test suite:
 cargo test
 ```
 
-Tests cover blocklist line parsing, CIDR aggregation/deduplication, and policy JSON generation.
+Tests cover blocklist line parsing, CIDR aggregation/deduplication, MISP warninglist parsing, policy JSON generation, and the allowlist subtraction logic (including splitting and removal of overlapping ranges).

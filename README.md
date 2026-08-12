@@ -2,11 +2,9 @@
 
 ## Summary
 
-Manually curating a blocklist of malicious IP networks is hard to keep fresh.
+Manually curating a blocklist of malicious IP networks is hard to keep fresh and even harder to review.
 
 This tool exists to automate that process, with intented use in CD pipelines for Kubernetes clusters that use Cilium.
-
-It does so by fetching public IPv4 blocklists (Spamhaus, FireHOL, TOR), applying MISP warninglists as allowlists, and printing a `CiliumClusterwideNetworkPolicy` manifest to stdout.
 
 ## Requirements
 
@@ -15,12 +13,6 @@ It does so by fetching public IPv4 blocklists (Spamhaus, FireHOL, TOR), applying
 - A Cilium-enabled Kubernetes cluster if you plan to apply the generated manifest
 
 ## Usage
-
-The tool has no runtime arguments.
-
-It reads the hardcoded source URLs, fetches them, applies the allowlists, and writes the generated policy to stdout.
-
-If either blocklist cannot be fetched after retries, the tool exits with an error and does not print a partial policy.
 
 ### Bash
 
@@ -81,6 +73,14 @@ spec:
                   cpu: "100m"
                   memory: "128Mi"
 ```
+## How It Works
+
+1. **Fetch** Spamhaus DROP, FireHOL Level 1, and TOR exit node lists.
+2. **Parse** each line, skipping blank lines and comments. Treat bare IPv4 addresses as `/32`.
+3. **Fetch & parse** MISP warninglists (Apple, Cloudflare, Googlebot, OpenAI GPTBot).
+4. **Subtract** allowlist ranges from blocked ranges. If a blocked network is fully covered by an allowed range, it’s removed. Partial overlaps are split so only the non‑allowlisted portions remain.
+5. **Aggregate** the remaining blocked ranges into the minimal non‑overlapping set.
+6. **Build** a `CiliumClusterwideNetworkPolicy` and print as pretty JSON to standard output.
 
 ## Data Sources
 

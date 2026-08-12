@@ -45,8 +45,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: docker pull paketobuildpacks/builder:jammy-base
-
       - env:
           REGISTRY_HOST: ${{ env.REGISTRY_HOST }}
           REGISTRY_OWNER: ${{ env.REGISTRY_OWNER }}

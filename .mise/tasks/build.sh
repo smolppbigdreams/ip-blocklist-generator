@@ -33,9 +33,8 @@ fi
 gum spin --show-output --spinner minidot --title "[📦] Building container with buildpacks..." -- \
     pack build "${PRIMARY_IMAGE}" \
         "${EXTRA_TAG_ARGS[@]}" \
-        --builder paketobuildpacks/builder:jammy-base \
+        --builder paketobuildpacks/builder-jammy-base \
         --buildpack docker.io/paketocommunity/rust \
-        --pull-policy if-not-present \
         ${PUBLISH_FLAG}
 
 gum log --level info "Image published: ${PRIMARY_IMAGE} ${EXTRA_TAG_ARGS[*]}"

@@ -14,7 +14,7 @@ IMAGE_NAME=$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')
 BASE_REF="${REGISTRY_HOST}/${REGISTRY_OWNER}/${IMAGE_NAME}"
 PRIMARY_IMAGE="${BASE_REF}:${IMAGE_TAG}"
 
-# Determine if 'latest' tag is to be used
+# Determine tag
 TAG_ARGS=( "--tag" "${PRIMARY_IMAGE}" )
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 if [[ "${ADD_LATEST_TAG:-false}" == "true" ]] || [[ "${CURRENT_BRANCH}" == "main" ]]; then

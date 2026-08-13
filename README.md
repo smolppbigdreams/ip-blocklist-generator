@@ -51,10 +51,10 @@ spec:
           containers:
             - name: generator
               image: ghcr.io/smolppbigdreams/ip-blocklist-generator:latest
-              command: ["/bin/sh", "-c", "/app/ip-blocklist-generator > /buckets/security/manifests/ip-blocklist.json"]
+              command: ["/bin/sh", "-c", "/app/ip-blocklist-generator > /buckets/manifests/ip-blocklist.json"]
               volumeMounts:
                 - name: ip-blocklist-volume
-                  mountPath: /buckets/security/manifests
+                  mountPath: /buckets/manifests
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true

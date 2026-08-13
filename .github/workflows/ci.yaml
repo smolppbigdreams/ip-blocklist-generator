@@ -1,7 +1,7 @@
 # ==========================================
 # Workflow Configuration
 # ==========================================
-name: ip-blocklist-generator CI
+name: CI
 
 on:
   push:

@@ -50,7 +50,7 @@ spec:
                 claimName: ip-blocklist-pvc
           containers:
             - name: generator
-              image: ghcr.io/smolppbigdreams/ip-blocklist-generator:latest
+              image: ${REGISTRY_HOST}/${REGISTRY_OWNER}/ip-blocklist-generator:latest
               command: ["/bin/sh", "-c", "/app/ip-blocklist-generator > /buckets/manifests/ip-blocklist.json"]
               volumeMounts:
                 - name: ip-blocklist-volume

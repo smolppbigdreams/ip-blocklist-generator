@@ -1,6 +1,6 @@
 # ip-blocklist-generator
 
-## Summary
+## TLDR
 
 Manually curating a blocklist of malicious IP networks is hard to keep fresh and even harder to review.
 

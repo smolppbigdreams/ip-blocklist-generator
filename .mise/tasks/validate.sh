@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="Validate Kubernetes manifests against relevant JSON schemas."
+#MISE description="Stage changes, run Prek hooks, and auto-fix issues."
 set -eo pipefail
 
 # ==========================================

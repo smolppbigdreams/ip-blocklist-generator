@@ -1,10 +1,10 @@
 # ip-blocklist-generator
 
+![Build: passing](https://img.shields.io/badge/build-passing-brightgreen)
+
 ## TLDR
 
-Manually curating a blocklist of malicious IP networks is hard to keep fresh and even harder to review.
-
-This tool exists to automate that process, with intented use in CD pipelines for Kubernetes clusters that use Cilium.
+> Manually curating a blocklist of malicious IP networks is hard to keep fresh and even harder to review. This tool automates that process, with intented use in CD pipelines for Kubernetes clusters that use Cilium.
 
 ## Requirements
 

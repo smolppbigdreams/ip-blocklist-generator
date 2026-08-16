@@ -145,3 +145,7 @@ cargo test
 ```
 
 Tests cover blocklist line parsing, CIDR aggregation/deduplication, MISP warninglist parsing, policy JSON generation, and the allowlist subtraction logic (including splitting and removal of overlapping ranges).
+
+## License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.

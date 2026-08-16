@@ -20,7 +20,4 @@ IMAGE_NAME      = "ip-blocklist-generator"
 # Settings
 # ==========================================
 [settings]
-task_output = "quiet"
-# ==========================================
-# Tools
-# ==========================================
+task.output = "quiet"
